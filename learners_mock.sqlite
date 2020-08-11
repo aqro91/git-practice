@@ -1,0 +1,54 @@
+--What are the Top 25 schools (.edu domains)?
+
+select email_domain, count(*) as "sumar"
+from users
+where email_domain like "%.edu"
+group by 1
+order by 2 desc;
+
+--How many .edu learners are located in New York?
+
+select city,count(*) "Users"
+from users
+group by 1
+having city like "New York";
+
+-- The mobile_app column contains either mobile-user or NULL. How many of these Codecademy learners are using the mobile app?
+
+select count(distinct user_id) as "mobile-user"
+from users
+where sign_up_at is NOT null;
+
+-- query for the sign up counts for each hour.
+
+SELECT sign_up_at,
+   strftime('%H', sign_up_at)
+FROM users
+GROUP BY 1
+LIMIT 20;
+
+--Do different schools (.edu domains) prefer different courses?
+
+with schools as (select us.email_domain as "email", pr.learn_cpp is not null as "cpp", pr.learn_html is not null as "html", 
+pr.learn_java is not null as "java", pr.learn_javascript is not null as "js", pr.learn_sql is not null as "sql"
+from users as us
+join progress as pr
+on us.user_id = pr.user_id)
+select email, sum(cpp), sum(html), sum(java), sum(js), sum(sql)
+from schools
+where email like "%.edu"
+group by 1
+limit 10;
+
+--What courses are the New Yorkers students taking?
+--What courses are the Chicago students taking?
+
+with schools as (select us.city as "city", pr.learn_cpp is not null as "cpp", pr.learn_html is not null as "html", 
+pr.learn_java is not null as "java", pr.learn_javascript is not null as "js", pr.learn_sql is not null as "sql"
+from users as us
+join progress as pr
+on us.user_id = pr.user_id)
+select city, sum(cpp), sum(html), sum(java), sum(js), sum(sql)
+from schools
+group by 1
+having city="New York" or city = "Chicago";
